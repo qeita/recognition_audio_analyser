@@ -173,6 +173,7 @@
       }
       baseVal = Math.floor(baseVal / heightArray.length) 
     }
+    console.log(baseVal)
 
     let m = Math.max(...heightArray)
     m -= baseVal
