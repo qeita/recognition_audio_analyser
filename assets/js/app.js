@@ -11,7 +11,7 @@
 
   const ctx = canvas.getContext('2d')
   let audioCtx, sourceNode, analyserNode, gainNode
-  const coeValue = 0.85
+  let baseVal = 0
 
   const videoSize = {w: 0, h: 0, aspect: 0}
 
@@ -164,12 +164,19 @@
       const v = array[i]
       const percent = v / 255
       const height = canvas.height * percent
-      heightArray.push( height > 0? height: 0 )
+      heightArray.push( height )
+    }
+
+    if(!baseVal){
+      for(let i = 0, cnt = heightArray.length; i < cnt; i++){
+        baseVal += heightArray[i]
+      }
+      baseVal = Math.floor(baseVal / heightArray.length) 
     }
 
     let m = Math.max(...heightArray)
+    m -= baseVal
     console.log(m)
-    m -= m * coeValue
 
     ctx.fillStyle = `rgba(${255 - m}, ${255 - m}, ${255 - m}, 1)`
     ctx.fillRect(0, 0, canvas.width, canvas.height)
