@@ -94,6 +94,7 @@
     tracks.forEach( (track) => {
       track.stop()
     })
+    baseVal = 0
     video.srcObject = null
   }
 
@@ -176,7 +177,8 @@
     console.log(baseVal)
 
     let m = Math.max(...heightArray)
-    m -= baseVal
+    console.log(m)
+    m = Math.floor((m - baseVal)/5)
     console.log(m)
 
     ctx.fillStyle = `rgba(${255 - m}, ${255 - m}, ${255 - m}, 1)`
