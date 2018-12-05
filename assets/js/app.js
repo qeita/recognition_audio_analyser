@@ -140,7 +140,7 @@
   function drawCanvas(){
     // ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
 
-    // const barWidth = canvas.width / analyserNode.fftSize
+    const barWidth = canvas.width / analyserNode.fftSize
     // const array = new Uint8Array(analyserNode.fftSize)
     // analyserNode.getByteTimeDomainData(array)
     // ctx.fillStyle = 'rgba(0, 0, 0, 1)'
@@ -179,10 +179,21 @@
     let m = Math.max(...heightArray)
     console.log(m)
     m = Math.floor((m - baseVal)/5)
-    console.log(m)
+    // console.log(m)
 
     ctx.fillStyle = `rgba(${255 - m}, ${255 - m}, ${255 - m}, 1)`
     ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    for(let i = 0; i < analyserNode.fftSize; ++i){
+      const v = array[i]
+      const percent = v / 255
+      const height = canvas.height * percent
+      const offset = canvas.height - height
+
+      ctx.fillStyle = 'lime'
+      ctx.fillRect( i * barWidth, offset, barWidth, 2)
+    }
+
   }
 
 
