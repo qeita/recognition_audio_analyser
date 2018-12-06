@@ -230,10 +230,11 @@
 
       source.start(0)
 
-      source.onended = () => {
+      source.onended = function(){
+        source.onended = null
+        source.stop(0);
         isAudioRun = false
         audioCtx = null
-        source.onended = null
         source = null
       }
     }
