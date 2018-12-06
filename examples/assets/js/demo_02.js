@@ -219,6 +219,7 @@
   }
 
   function addMedia(m){
+    console.log(isAudioRun)
     if(isAudioRun) return
 
     function play(buffer){
@@ -236,6 +237,8 @@
         source = null
       }
     }
+
+    console.log(m)
 
     if(m >= 50 && m < 80){
       isAudioRun = true
