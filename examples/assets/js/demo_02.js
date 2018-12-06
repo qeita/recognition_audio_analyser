@@ -15,14 +15,14 @@
 
   const videoSize = {w: 0, h: 0, aspect: 0}
 
-  const img = new Image()
-  const texSize = {w: 0, w: 0, scale: 0.2, isTextureLoaded: false}
-  img.onload = () => {
-    texSize.w = img.width
-    texSize.h = img.height
-    texSize.isTextureLoaded = true 
-  }
-  img.src = './assets/img/demo_01.png'
+  const img1 = new Image()
+  const img2 = new Image()
+  const texSize = [
+    {w: 0, h: 0, scale: 0.2, isTextureLoaded: false},
+    {w: 0, h: 0, scale: 0.2, isTextureLoaded: false}
+  ]
+  let audioBuffer = {1: null, 2: null, 3: null}
+  let isAudioRun = false
 
 
   main()
@@ -30,9 +30,29 @@
   
   function main(){
     // getMediaData()
+    loadTexture()
     recordBtn.addEventListener('click', () => {
       setRecordState()
     }, false)
+  }
+
+  /**
+   * テクスチャ読み込み
+   */
+  function loadTexture(){
+    img1.onload = () => {
+      texSize[0].w = img1.width
+      texSize[0].h = img1.height
+      texSize[0].isTextureLoaded = true
+    }
+    img1.src = './assets/img/demo_02/fig_01.png'      
+
+    img2.onload = () => {
+      texSize[1].w = img2.width
+      texSize[1].h = img2.height
+      texSize[1].isTextureLoaded = true
+    }
+    img2.src = './assets/img/demo_02/fig_02.png'         
   }
 
   /**
@@ -142,6 +162,27 @@
     // analyserNode.connect(audioCtx.destination)
   }
 
+  function getAudioBuffer(index, url, callback){
+    const req = new XMLHttpRequest()
+    req.responseType = 'arraybuffer'
+
+    req.onreadystatechange = () => {
+      if(req.readyState === 4){
+        if(req.status === 0 || req.status === 200){
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+          audioCtx.decodeAudioData(req.response, (buffer) => {
+            audioCtx = null
+            audioBuffer[ index ] = buffer
+            if(callback) callback(buffer)
+          })
+        }
+      }      
+    }
+
+    req.open('GET', url, true)
+    req.send('')
+  }
+
   function draw(){
     drawCanvas()
     requestAnimationFrame( draw )
@@ -174,29 +215,80 @@
     m = Math.floor((m - baseVal)/5)
     // console.log(m)
 
+    addMedia(m)
+  }
+
+  function addMedia(m){
+    if(isAudioRun) return
+
+    function play(buffer){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+      let source = audioCtx.createBufferSource()
+      source.buffer = buffer
+      source.connect(audioCtx.destination)
+
+      source.start(0)
+
+      source.onended = () => {
+        isAudioRun = false
+        audioCtx = null
+        source.onended = null
+        source = null
+      }
+    }
+
+    if(m >= 50 && m < 80){
+      isAudioRun = true
+      if(audioBuffer[1]){
+        play(audioBuffer[1])
+      }else{
+        getAudioBuffer(
+          1,
+          './assets/audio/demo_02/audio_01.mp3',
+          play
+        )      
+      }
+    }else if(m >= 80 && m < 110){
+      isAudioRun = true
+      if(audioBuffer[2]){
+        play(audioBuffer[2])
+      }else{
+        getAudioBuffer(
+          2,
+          './assets/audio/demo_02/audio_02.mp3',
+          play
+        )
+      }          
+    }else if(m >= 110){
+      isAudioRun = true
+      if(audioBuffer[3]){
+        play(audioBuffer[3])
+      }else{
+        getAudioBuffer(
+          3,
+          './assets/audio/demo_02/audio_03.mp3',
+          play
+        )
+      }          
+    }
+
     drawTexture(m)
-    drawBg(m)
   }
 
   function drawTexture(m){
-    if(texSize.isTextureLoaded){
-      if(m / 100 >= 0.5){
-        ctx.globalAlpha = (m / 100) - 0.5
-        const scale = texSize.scale + ((m / 100) - 0.8 >= 0? (m / 100) - 0.8: 0)
-        ctx.drawImage(
-          img,
-          Math.floor( (canvas.width - canvas.width * scale)/2 ),
-          Math.floor( (canvas.height - (canvas.width * scale * img.height)/img.width)/2 ),
-          Math.floor(canvas.width * scale),
-          Math.floor( (canvas.width * scale * img.height)/img.width )    // w: h = cW * 0.4: x
-        )    
-      }
-    }    
-  }
+    let index = 0, target = img1
+    if(m >= 50){
+      index = 1
+      target = img2
+    }
 
-  function drawBg(m){
-    ctx.fillStyle = `rgba(${0 + m}, ${0 + m}, ${0 + m}, 1)`
-    ctx.fillRect(0, 0, canvas.width, canvas.height)    
+    ctx.drawImage(
+      target,
+      Math.floor( (canvas.width - 310)/2 ),
+      Math.floor( (canvas.height - 351)/2 ),
+      310,
+      351
+    )  
   }
 
 
