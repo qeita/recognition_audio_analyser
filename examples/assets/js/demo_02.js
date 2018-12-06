@@ -125,6 +125,7 @@
       track.stop()
     })
     baseVal = 0
+    isAudioRun = false
     video.srcObject = null
   }
 
@@ -228,15 +229,14 @@
       source.buffer = buffer
       source.connect(audioCtx.destination)
 
-      source.start(0)
-
       source.onended = function(){
         source.onended = null
-        source.stop(0);
         isAudioRun = false
         audioCtx = null
         source = null
       }
+      source.start(0)
+      source.stop(source.buffer.duration)
     }
 
     console.log(m)
